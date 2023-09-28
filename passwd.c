@@ -1,21 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-char** allouer(int line,int cols){
-	char **tab=NULL;
-	tab=(char**)malloc(sizeof(char*)*line);
-	for(int i=0;i<line;i++){
-		*(tab+i)=(void*)calloc(cols,sizeof(char)*cols);
-	}
-	return tab;
-}
-int EstPoints(char* tab){
-	int v=0;	
-	for(int j=0;j<strlen(tab); j++)
-			if(tab[j]==':' && tab[j+1]!=':')	v++;               							
-	return v;
-}
+#include "var.h"
 
 int main(){
 	char* contenu= malloc(255);
@@ -88,7 +74,7 @@ int main(){
 	printf("</HTML>\n\n");
 	
 	fclose(file);
-	free(contenu); //free(user); free(rep); free(mot);
+	free(contenu); 
 
 	return 0;
 }
