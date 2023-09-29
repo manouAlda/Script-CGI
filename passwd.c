@@ -4,8 +4,9 @@
 #include "var.h"
 
 int main(){
-	char* contenu= malloc(255);
 	
+/// Declaration des variables pour le tableau (utilisateur + repertoire personnel)
+	char* contenu= malloc(255);	
 	char* user = malloc(20);
     char* rep = malloc(20);
     char* mot = malloc(20);    
@@ -16,22 +17,24 @@ int main(){
 	file= fopen ("/etc/passwd","r");
 	
 	if (file == NULL){
-		printf("Erreur d'ouverture du fichier\n");
+		printf("Erreur d'ouverture du fichier /etc/passwd\n");
 	}
 	
+/// Traitement 
+	//Print des balises HTML
 	printf("Content-Type: text/html\n\n");
 	
 	printf("<HTML>\n");
 	printf("<HEAD>\n");
 	printf("<title>Utilisateur</title>\n");
 	printf("</HEAD>\n");
-	printf("<body bgcolor=\"pink\">\n");
+	printf("<body>\n");
 	
 	printf("<table border=\"1\" width=\"100%%\" cellspacing=\"10\" cellpadding=\"10\" >\n");
-    printf("    <caption align=\"top\"><h1>User information</h1></caption>\n");
+    printf("    <caption align=\"top\"><h1><i>User information</i></h1></caption>\n");
     printf("    <tr>\n");
-    printf("       <td width=\"50%%\" bgcolor=\"#000000\"><font color=\"#FFFFFF\">User</font></td>\n");
-    printf("       <td width=\"50%%\" bgcolor=\"#000000\"><font color=\"#FFFFFF\">Home directory</font></td>\n");
+    printf("       <td width=\"50%%\" bgcolor=\"#ced7d8\"><font color=\"#000000\"><b>User</b></td>\n");
+    printf("       <td width=\"50%%\" bgcolor=\"#ced7d8\"><font color=\"#000000\"><b>Home directory</b></td>\n");
     printf("    </tr>\n");
 		
 	while(feof(file)!=1){
@@ -41,7 +44,7 @@ int main(){
 		mot = strtok(contenu,":");
 		/// 1er champs
 		if (mot == NULL)	continue;
-		user = mot;
+		strcpy(user , mot);
 		/// 2em champs
 		mot = strtok(NULL,":");
 		if (mot == NULL)	continue;
@@ -57,12 +60,12 @@ int main(){
 			mot = strtok(NULL,":");
 			if (mot == NULL)	continue;
 		}	
-		rep = mot;
+		strcpy(rep ,mot);
 	
 		if(uid>=1000 && uid<5000){
 			printf("    <tr>\n");
-			printf("       <td width=\"50%%\">%s</td>\n",user);
-			printf("       <td width=\"50%%\">%s</td>\n",rep);
+			printf("       <td width=\"50%%\" bgcolor=\"#E29E93\">%s</td>\n",user);
+			printf("       <td width=\"50%%\" bgcolor=\"#E5EDF8\">%s</td>\n",rep);
 			printf("    </tr>\n");
 		}
 		i++;
@@ -74,7 +77,7 @@ int main(){
 	printf("</HTML>\n\n");
 	
 	fclose(file);
-	free(contenu); 
+	freePasswd (contenu,user, mot,rep);
 
 	return 0;
 }
