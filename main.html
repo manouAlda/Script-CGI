@@ -1,0 +1,74 @@
+<!doctype html> 
+<html>
+    <head>
+        <title>Search</title>
+        <style>
+            #main{
+                display: flex;
+                justify-content:space-around
+            }
+            .div{
+                width: 27%;
+                min-height: 400px;
+                background-color:coral;
+                border-radius: 15px;
+                padding: 20px;
+                text-align: center;
+            }
+            #search{
+                display: flex;
+                margin-top: 35%;
+                justify-content: space-around;
+            }
+            .input{
+                width: 75%;
+            }
+            img{
+                margin-top: 25%;
+                width: 80%;
+                height: 35%;
+            }
+        </style>
+    </head>
+
+    <body bgcolor="lightcyan">
+
+        <center>
+            <font color="#50aaffcb" size="7">
+                <b><i>/var/log/auth.log</i></b>
+            </font> 
+        </center>
+
+        <hr>
+        <br>
+      
+        <div id="main">
+            <div class="div">
+                <h1> <center>Search user </center></h1>
+                <CENTER>
+                <form action="http://www.site3.fr/programme/varLog.cgi" method="get" >
+                    <div id="search">
+                        <input type="search" name="user" placeholder="mit" class="input"/> 
+                        <input type="image" src="icone.png" alt="search" width="13%%" height="13%%">
+                    </div>
+                </form>
+            </CENTER>
+            </div>
+            <div id="second" class="div">
+                <h1><center>Print All</center></h1>
+                <button>
+                    <a href="http://www.site3.fr/programme/varLog.cgi/suivant=0"><font color="black"> Check</font></a>
+                </button>
+                <img src="bg.png" alt="tableau"/>
+            </div>
+            <div class="div">
+                <h1><center>Last Hundred Lines</center></h1>
+                <button>
+                    <a href="http://www.site3.fr/programme/hundred=0"><font color="black"> Check</font></a>
+                </button>
+                <img src="bg.png" alt="tableau"/>
+            </div>
+        </div> 
+
+    </body>
+</html>

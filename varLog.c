@@ -1,97 +1,107 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "var.h"
+#include "log.h"
+#include "connect.h"
 
-int main(){
-	/// Declaration des donnees pour filter les 100 dernieres lignes où les sessions ouvertes ou fermees par un utilisateur dans le fichier /var/log/auth.log
-	char* line= malloc(1000);
-    char* month= malloc(4); 
-    char* day= malloc(4);
-    char* time= malloc(10); 
-    char* session=malloc(10);
-    char* login = malloc(10);
-    char* hostname = malloc(100);
-    char* service= malloc(100); 
-    char* action = malloc(100);
-    char* infos= malloc(100);
-	
-///Traitement
-	// Print des balises HTML
+int main() {
+    // Print des balises HTML
 	printf("Content-type:text/html\n\n");
-	
-	printf("<HTML>\n");
-	printf("<HEAD>\n");
-	printf("<title>Fichier log</title>\n");
-	printf("</HEAD>\n");
-	printf("<body bgcolor=\"white\">\n");
-	
-	//ouverture du fichier a filtrer 
-	
-	FILE* var = fopen("/var/log/auth.log", "r");
-	
-	if(var == NULL){
-		printf("Erreur de l'ouverture du fichier /var/log/auth.log\n");
-	}
-	
-	printf("<table border=\"1px\" width=\"100%%\" cellspacing=\"10\" cellpadding=\"10\" >\n");
-    printf("    <caption align=\"top\"><h1><i>/var/log/auth.log</i></h1></caption>\n");
-    printf("    <tr>\n");
-    printf("       <td width=\"34%%\" bgcolor=\"#ced7d8\"><font color=\"#000000\"><b>Time</b></font></td>\n");
-    printf("       <td width=\"33%%\" bgcolor=\"#ced7d8\"><font color=\"#000000\"><b>Opening/Closing </b></font></td>\n");
-    printf("       <td width=\"33%%\" bgcolor=\"#ced7d8\"><font color=\"#000000\"><b>User</b></font></td>\n");
-    printf("    </tr>\n");
-	
-	int total = count_line(var);		// recuperation du nombre de ligne total du fichier /var/log/auth.Log
-	int centaine = total -100;			// avoir le debut des 100 dernieres lignes
-	
-	for(int l=0;l<=total;l++){
-		fgets(line,1000, var);
-		
-			strcpy (month ,strtok(line, " ") );       // Première partie est le mois 
-            day = strtok(NULL, " ");
-            time = strtok(NULL, " ");           
-            
-            hostname = strtok(NULL, " ");
-            service = strtok(NULL, ":");    // Deuxième partie est le nom du service
-            
-            action = strtok(NULL, ":");     
-            infos = strtok(NULL, ":");
-            
-            char* utilisateur = strtok(NULL, "\n"); 
 
-            if(utilisateur !=NULL){
-				
-				if (strstr(utilisateur, "session") != NULL) {
-					if(strstr(utilisateur, "opened")!=NULL){
-						strcpy(session,"opened");
-					
-					}else if (strstr(utilisateur, "closed")!=NULL || strstr(utilisateur, "close")!=NULL){
-						strcpy(session,"closed");
-					}
-					
-					if (strstr(utilisateur, "for user ") !=NULL) {
-						strcpy (login , strstr(utilisateur,"for user ") ) ;
-					}
-						
-					if(l>=centaine){					
-						printf("    <tr>\n");
-						printf("       <td width=\"34%%\" bgcolor=\"#aed6dc\">%s %s %s</td>\n",month,day,time);
-						printf("       <td width=\"33%%\" bgcolor=\"#ff9a8d\">session %s</td>\n",session);
-						printf("       <td width=\"33%%\" bgcolor=\"#4a536b\">%s</td>\n",login);
-						printf("    </tr>\n");		
-					}		
-				}			
-			}			
-	}
-	
-	printf(" </table> \n");	
-	
-	printf("</body>\n");
-	printf("</HTML>\n\n");
-	
-	fclose(var);
-	freedom (line,month,  day,  time,  session, login, hostname, service,  action,  infos); 
-	
-	return 0;
+    char* reply = getenv("QUERY_STRING");
+    char* variable = malloc(100);
+    char* valeur = malloc(100);
+    char* username = malloc(30);
+    char user[20] , contenu[100];
+
+    FILE* var=NULL;		FILE* file ;
+    int nbr = count_line(var);
+    int count =0;
+    int debut=1, fin=10, commence=1, final=10;
+    int search=0, pied=0;
+    int verify=1, connect= -1, inscrit=0;
+    count = (nbr+9) / 10;
+    
+    strcpy(username,"");
+    file = fopen("connecte.csv", "r");
+    if(file==NULL)  printf("Erreur d'ouverture du fichier de connexion");
+    fgets(contenu, 100, file);
+    sscanf(contenu, "%[^,],%*[^\n]\n",username);
+
+    if(reply!=NULL){       
+        sscanf(reply, "%[^=]=%[^\n]", variable,valeur);  
+
+        if (strcmp(variable,"login")==0) {
+            verify=0;	pied=1;
+            formulaire("");
+        }else if(strcmp(variable,"inscrire")==0){
+            verify=0;	pied=1;
+            inscrire("");
+        }else if(strcmp(variable,"information")==0){
+            verify=0;	pied=1;
+            information("");
+        }else if(strcmp(variable,"suivant")==0){
+            debut=atoi(valeur)+1;       fin = debut +9;
+            if(atoi(valeur)==0)    commence=1;
+            else    commence=atoi(valeur)/10;       
+            final=commence+9;
+        }else if(strcmp(variable,"avant")==0){
+            fin = atoi(valeur)-10;      debut = fin -9;
+            commence=(atoi(valeur)-10)/10;          final=commence+9;
+        }else if(strcmp(variable, "hundred")==0){
+            debut = nbr-100;            fin = debut + 9 ;
+        }else if(strcmp(variable, "user")==0 || strstr(variable,"user")!=NULL){
+            search=1;
+            if(strcmp(variable, "user")==0 ){
+				sscanf(reply, "%*[^=]=%[^&]&%[^=]=%[^\n]\n", valeur, user,variable);		 }
+			else if(strstr(variable,"user")!=NULL){
+				sscanf(reply, "%*[^+]+%[^+]+%[^=]=%[^\n]\n", valeur, user, variable);	     }
+            
+            if( strcmp(user, "suivant_user")==0){
+                debut=atoi(variable)+1;       fin = debut +9;     
+            }else if (strcmp(user, "avant_user")==0){
+                fin = atoi(variable)-10;      debut = fin -9;
+            }else if (strcmp(user, "page")==0){
+                debut = ( (atoi(variable)-1) * 10 ) +1;            fin = debut +9;
+				commence=atoi(variable);      final=atoi(variable)+9;
+            }else if (strcmp(user, "plage_avant")==0){
+                final = atoi(variable);       
+				if(final<10)    commence = final - (final - 1);
+				else            commence= final-9;
+            }else if(strcmp(user, "plage_apres")==0){
+				commence = atoi(variable)+1;      final = commence+9;
+			}
+        }else if(strcmp(variable, "page")==0){
+            if(atoi(valeur)>count){
+                search=1;   strcpy(valeur,"Nothing");
+            }
+            debut = ( (atoi(valeur)-1) * 10 ) +1;            fin = debut +9;
+            commence=atoi(valeur);      final=atoi(valeur)+9;
+        }else if(strcmp(variable, "plage_avant")==0){
+            final = atoi(valeur);       
+            if(final<10)    commence = final - (final - 1);
+            else            commence= final-9;
+        }else if(strcmp(variable, "plage_apres")==0){
+            commence = atoi(valeur)+1;      final = commence+9;
+        }else if(strcmp(variable,"deconnexion")==0){
+            deconnexion();      strcpy(username,"");
+        }
+    }
+
+	if( strcmp(username,"")==0 && pied!=1){
+        oupps();
+        verify=0;
+    }
+    if(verify==1){
+        aheader(username);
+
+        traitement_search(var,valeur , search ,debut,fin,commence,final);
+
+        pfoot(nbr,commence, final);
+    }
+       
+    free(variable); free(valeur);
+    fclose(file);
+
+    return 0;
 }
