@@ -11,12 +11,8 @@ int main() {
     char* answer = NULL;
     char* variable = malloc(100);
     char* valeur = malloc(100);
-    char* username = malloc(30);
 	FILE* file ;
     int connect= -1, inscrit=0, finish=1, longueur=0, modify=0;
-    
-    file = fopen("connecte.csv", "r");
-    if(file==NULL)  printf("Erreur d'ouverture du fichier de connexion");
     
     longueur = atoi(reply);
     answer = malloc(longueur+1);
@@ -47,15 +43,11 @@ int main() {
         }
     }
     
-    fgets(contenu, 100, file);
-    sscanf(contenu, "%[^,],%*[^\n]\n",username);
-    
     if (finish == 1) {
-        printf("<head><meta http-equiv=\"refresh\" content=\"0;url=http://www.site3.fr/programme/varLog.cgi?username=%s\"></head>",username);
+        printf("<head><meta http-equiv=\"refresh\" content=\"0;url=http://www.site3.fr/programme/varLog.cgi\"></head>");
     }
        
     free(variable); free(valeur);
-    fclose(file);
 
     return 0;
 }

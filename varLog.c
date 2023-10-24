@@ -6,39 +6,48 @@
 
 int main() {
     // Print des balises HTML
+    printf("Cache-Control: no-cache, no-store, must-revalidiate\n");
+    printf("Pragma: no cache\n");
+    printf("Expires: 0\n");
 	printf("Content-type:text/html\n\n");
 
     char* reply = getenv("QUERY_STRING");
+    char* ip = getenv("REMOTE_ADDR");
     char* variable = malloc(100);
     char* valeur = malloc(100);
     char* username = malloc(30);
-    char user[20] , contenu[100];
+    char* address = malloc(30);
+    char user[20] , contenu[100], tmp[20];
 
     FILE* var=NULL;		FILE* file ;
     int nbr = count_line(var);
     int count =0;
     int debut=1, fin=10, commence=1, final=10;
-    int search=0, pied=0;
+    int search=0, none=0;
     int verify=1, connect= -1, inscrit=0;
     count = (nbr+9) / 10;
     
     strcpy(username,"");
     file = fopen("connecte.csv", "r");
     if(file==NULL)  printf("Erreur d'ouverture du fichier de connexion");
-    fgets(contenu, 100, file);
-    sscanf(contenu, "%[^,],%*[^\n]\n",username);
+    for(int i=0; feof(file)!=1; i++){
+         fgets(contenu, 100, file);
+        sscanf(contenu, "%[^,],%*[^,],%[^\n]\n",tmp,address);
+        if(strcmp(address,ip)==0)
+            strcpy(username,tmp);
+    }
 
     if(reply!=NULL){       
         sscanf(reply, "%[^=]=%[^\n]", variable,valeur);  
 
         if (strcmp(variable,"login")==0) {
-            verify=0;	pied=1;
+            verify=0;	none=1;
             formulaire("");
         }else if(strcmp(variable,"inscrire")==0){
-            verify=0;	pied=1;
+            verify=0;	none=1;
             inscrire("");
         }else if(strcmp(variable,"information")==0){
-            verify=0;	pied=1;
+            verify=0;	none=1;
             information("");
         }else if(strcmp(variable,"suivant")==0){
             debut=atoi(valeur)+1;       fin = debut +9;
@@ -84,11 +93,11 @@ int main() {
         }else if(strcmp(variable, "plage_apres")==0){
             commence = atoi(valeur)+1;      final = commence+9;
         }else if(strcmp(variable,"deconnexion")==0){
-            deconnexion();      strcpy(username,"");
+            deconnexion(username);      strcpy(username,"");
         }
     }
 
-	if( strcmp(username,"")==0 && pied!=1){
+	if( strcmp(username,"")==0 && none!=1 ){
         oupps();
         verify=0;
     }
@@ -100,7 +109,7 @@ int main() {
         pfoot(nbr,commence, final);
     }
        
-    free(variable); free(valeur);
+    free(variable); free(valeur);   free(username);
     fclose(file);
 
     return 0;

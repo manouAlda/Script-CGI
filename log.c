@@ -31,7 +31,7 @@ void pheader(){
 	printf("<title>Utilisateur</title>\n");
 	printf("</HEAD>\n");
 	printf("<body>\n");
-	printf("<table border=\"1\" cellspacing=\"10\" cellpadding=\"10\" >\n");
+	printf("<table border=\"1\"  width=\"100%%\"cellspacing=\"10\" cellpadding=\"10\" >\n");
     printf("    <caption align=\"top\"><h1><i><font color=\"red\">User information</font></i></h1></caption>\n");
     printf("    <tr>\n");
     printf("       <td width=\"50%%\" bgcolor=\"#ced7d8\"><font color=\"#000000\"><b>User</b></td>\n");
@@ -107,7 +107,7 @@ void foot (){
 void table(){
     printf("<table border=\"1px\" width=\"100%%\" cellspacing=\"10\" cellpadding=\"10\" >\n");
 
-    printf("    <caption align=\"top\"><font color=\"blue\" size=\"7\"><i><a name=\"header\">/var/log/auth.log<a></i></font></caption>\n");
+    printf("    <caption align=\"top\"><h1><i><font color=\"red\"><a name=\"header\">/var/log/auth.log<a></font></i></caption>\n");
 
     printf("<tr>\n");
     printf("<a href=\"#footer\" >Aller en bas</a>\n");
@@ -302,8 +302,6 @@ void row_cols (int i,Auth* lines){
             strcpy( login , login_out(login) );
             if(strstr (lines[i].infos,"(uid=")!=NULL)
                 printf("       <td width=\"32%%\" bgcolor=\"#4a536b\"><a href=\"http://www.site3.fr/programme/varLog.cgi?user=%s\"><font color=\"orange\">%s</font></a>%s </td>\n",login,login, strstr (lines[i].infos,"(uid="));
-            else if(strstr (lines[i].infos,"by ")!=NULL)
-                printf("       <td width=\"32%%\" bgcolor=\"#4a536b\"><a href=\"http://www.site3.fr/programme/varLog.cgi?user=%s\"><font color=\"orange\">%s</font></a>%s </td>\n",login,login, strstr (lines[i].infos,"by "));
             else{
                 printf("       <td width=\"32%%\" bgcolor=\"#4a536b\"><a href=\"http://www.site3.fr/programme/varLog.cgi?user=%s\"><font color=\"orange\">%s</font></a></td>\n",login,login);
             }

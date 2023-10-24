@@ -159,6 +159,7 @@ char* withoutHex (char* tab){
 }
 
 int fichier_inscrit (char* infos){
+  char* ip = getenv("REMOTE_ADDR");
   FILE* file = fopen("inscrit.csv","a+");
   FILE* f = fopen("connecte.csv","w");
   char nom[255], email[100], mdp[50], clone[50],pseudo[20],content[255];
@@ -179,7 +180,7 @@ int fichier_inscrit (char* infos){
   if(strcmp(mdp,clone)!=0)  confirmation=0;
   else if (confirmation == 1) {
     fprintf(file, "%s,%s,%s,%s\n", nom, pseudo, email, mdp);
-    fprintf(f, "%s,%s\n", pseudo, mdp);
+    fprintf(f, "%s,%s,%s\n", pseudo, mdp,ip);
   } 
     
   fclose(file);     fclose(f);
@@ -193,6 +194,7 @@ int fichier_connecte ( char* infos){
   char nom[255], mdp[50], name[100], email[100], passwd[50],pseudo[20];
   int connecte=0, verifier=0;
   char contenu[255];
+  char* ip = getenv("REMOTE_ADDR");
 
   if(file==NULL)    printf("Erreur d'ouverture du fichier de connexion\n");
   if(fichier==NULL)    printf("Erreur d'ouverture du fichier d'inscription\n");
@@ -209,9 +211,9 @@ int fichier_connecte ( char* infos){
       verifier=1;
     }
   }
-  printf("<p><font color=\"blue\">username: %s = %s</font></p>",email,nom);
+
   if(connecte==1 && verifier==1){
-    fprintf(file, "%s,%s\n", nom, mdp);
+    fprintf(file, "%s,%s,%s\n", nom, mdp,ip);
     connecte=2;
   }
   
@@ -245,7 +247,7 @@ void information (char* infos){
   char contenu[255], connect[255], user[50], mdp[15], email[50], pseudo[20];
 
   fgets(connect, 255, f);
-  sscanf(connect, "%[^,],%[^\n]\n", user, mdp);
+  sscanf(connect, "%[^,],%[^,],%*[^\n]\n", user, mdp);
 
   for(int i=0; feof(file)!=1; i++){
     fgets(contenu, 255, file);
@@ -291,45 +293,72 @@ void information (char* infos){
 
 int modification (char* reply){
   FILE* file = fopen ("inscrit.csv", "r");
-  FILE* exchange = fopen("copy.csv", "w+");
   FILE* connect=fopen("connecte.csv", "r");
-  char signUp[255],content[255],contenu[255], nom[100], mdp[20], pseudo[20],email[50], name[100], passwd[20];
-  int right=1;
+  char signUp[255],content[255],nom[100], mdp[20], pseudo[20],email[50], name[100], passwd[20];
+  char anarana[50], mail[50], pseu[20];
+  char fiche[50][255], remp[255];
+  int right=1, i=0, j=0;
 
-  sscanf(reply, "%[&]&%*[^=]=%[^&]&%*[^=]=%[^&]&%*[^=]=%[^\n]\n", name, pseudo, email, passwd);
+  sscanf(reply, "%*[^=]=%[^&]&%*[^=]=%[^&]&%*[^=]=%[^&]&%*[^=]=%[^\n]\n", name, pseudo, email, passwd);
 
   fgets(signUp, 100, connect);
-  sscanf(signUp, "%[^,],%[^\n]\n", nom, mdp);
+  sscanf(signUp, "%[^,],%[^,],%*[^\n]\n", nom, mdp);
   fclose(connect);
-  
-  for(int i=0; feof(file)!=1; i++){
+
+  for(i=0; feof(file)!=1; i++){
     fgets(content, 255, file);
-    if(strstr(content, nom)==NULL && strstr(content, mdp)==NULL)
-      fprintf(exchange, "%s", content);
+    sscanf(content, "%[^,],%[^,],%[^,],%*[^\n]\n", anarana,pseu,mail);
+    if(strstr(content, nom)==NULL && strstr(content, mdp)==NULL){
+      if(strcmp(anarana,name)==0 || strcmp(mail,email)==0 || strcmp(pseu, pseudo)==0 )
+        right = 0;
+       
+      strcpy(fiche[j],content);
+      j++;
+    }else{
+      strcpy(remp,content);
+    } 
   }
-  rewind(exchange);
- 
-  for(int i=0; feof(exchange)!=1; i++){
-    fgets(contenu, 255, exchange);
-    printf("<p><font color=\"purple\">content: %s</font></p>",contenu);
-    if(strstr(content,pseudo)!=NULL || strstr(content,email)!=NULL)
-      right=0;
-  } /*
-  if(right==1){
-    FILE* connect=fopen("connecte.csv", "w");
-    fprintf(exchange, "%s,%s,%s,%s\n", name, pseudo, email, passwd);
-    fprintf(connect, "%s,%s\n", pseudo,passwd);
-    fclose(connect);
-  }
-*/
-  fclose(exchange);
   fclose(file); 
-  
+
+  file = fopen ("inscrit.csv", "w");
+  for(int k=0; k<i-1 ; k++){
+    fprintf(file, "%s", fiche[k]);
+  }
+  fclose(file); 
+
+  file = fopen("inscrit.csv", "a");
+  if(right==1)
+    fprintf(file, "%s,%s,%s,%s", name, pseudo, email, passwd);
+  else if(right==0)
+     fprintf(file, "%s", remp);
+  fclose(file);
+
   return right;    
 }
 
-void deconnexion(){
-  FILE* file = fopen("connecte.csv","w");
+void deconnexion(char* user){
+  char tmp[255];
+  char doc[50][255];
+  char nom[20];
+  int i=0;
+  FILE* file = fopen("connecte.csv","r");
   if(file==NULL)  printf("Erreur d'ouverture du fichier de connexion\n");
+
+  for(i=0; feof(file)!=1; i++){
+    fgets(tmp, 255, file);
+    sscanf(tmp, "%[^,],%*[^\n]\n" , nom);
+
+    if(strcmp(nom,user)!=0){
+      strcpy(doc[i],tmp);
+    }
+  }
+  fclose(file);
+
+  file = fopen("connecte.csv","w");
+
+  for(int j=0; j<i; j++){
+    fprintf(file, "%s", doc[j]);
+  }
+
   fclose(file);
 }

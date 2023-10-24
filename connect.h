@@ -9,6 +9,6 @@ int fichier_connecte(char* infos);
 char* user_id (char* username);
 int modification (char* reply);
 void information (char* infos);
-void deconnexion();
+void deconnexion(char* user);
 
 #endif
